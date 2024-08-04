@@ -5,16 +5,19 @@ class RedisClient {
     this.client = createClient();
     this.client.on('error', (err) => {
       console.log(err);
-      this.client = undefined;
     });
     this.client.connect();
   }
 
   isAlive() {
-    if (this.client) {
+    try {
+      async () => {
+        await this.client.ping();
+      }
       return true;
+    } catch (err) {
+      return false;
     }
-    return false;
   }
 
   get(str) {
@@ -22,7 +25,7 @@ class RedisClient {
       const value = this.client.get(str);
       return value;
     } catch (err) {
-      console.log(err);	    
+      console.log(err);
     }
   }
 
