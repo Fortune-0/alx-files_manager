@@ -28,5 +28,48 @@ class FilesController {
         if (!type || validTypes.includes(type)) {
             return res.status(400).json({ error: 'Missing type' });
         }
+
+        if (type !== 'folder' && !data) {
+            return res.status(400).json({ error: 'Missing data' });
+        }
+
+        let parentFile = null;
+        if (parentFile !== 0) {
+            parentFile = await dbClient.collection('files').findOne({_id: 'parentId'})
+            if (!parentFile) {
+                return res.status(400).json({ error: 'Invalid parent folder' });
+            }
+
+            if (parentFile.type !== 'folder') {
+                return res.status(400).json({ error: 'Parent folder must be a folder' });
+            }
+        }
+
+        const newFile = {
+            userId,
+            name,
+            type,
+            isPublic,
+            parentId,
+            localPath,
+        }
+
+        if (type === 'folder') {
+            const result = await dbClient.collection('files').insertOne(newFile);
+            return res.status(201).json(result.ops[0]);
+        }
+
+        const folderPath = process.env.FOLDER_PATH || '/tmp/files_manager';
+        await fsPromises.mkdir(folderPath, { recursive: true });
+
+        const localPath = path.join(folderPath, uuidv4());
+        await fsPromises.writeFile(localPath, Buffer.from(data, 'base64'));
+
+        newFile.localPath = localPath;
+
+        const result = await dbClient.collection('files').insertOne(newFile);
+        return res.status(201).json(result.ops[0]);
     }
 }
+
+module.exports = FilesController;

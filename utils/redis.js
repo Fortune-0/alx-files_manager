@@ -1,52 +1,30 @@
-import { createClient } from 'redis';
+const redis = require('redis');
+const { promisify } = require('util');
 
 class RedisClient {
-  constructor () {
-    this.client = createClient();
-    this.client.on('error', (err) => {
-      console.log(err);
-    });
-    this.client.connect();
-  }
+    constructor() {
+        this.client = redis.createClient();
+        this.getAsync = promisify(this.client.get).bind(this.client);
 
-  isAlive() {
-    try {
-      async () => {
-        await this.client.ping();
-      }
-      return true;
-    } catch (err) {
-      return false;
+        this.client.on('error', (err) => {
+            console.error('Redis Client Error:', err);
+        });
     }
-  }
 
-  get(str) {
-    try {
-      const value = this.client.get(str);
-      return value;
-    } catch (err) {
-      console.log(err);
+    isAlive() {
+        return this.client.connected;
     }
-  }
 
-  set(str, val, dur) {
-    try {
-      this.client.set(str, val);
-      if (dur) {
-        this.client.expire(str, dur);
-      }
-    } catch (err) {
-      console.log(err);
+    async get(key) {
+        return this.getAsync(key);
     }
-  }
 
-  del(str) {
-    try {
-      this.client.del(str);
-    } catch (err) {
-      console.log(err);
+    async set(key, value, duration) {
+        this.client.set(key, value);
+        if (duration) {
+            this.client.expire(key, duration);
+        }
     }
-  }
 }
 
 const redisClient = new RedisClient();
