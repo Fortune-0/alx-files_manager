@@ -1,10 +1,9 @@
-const express = require('express');
-const routes = require('routes');
+import express from 'express';
+import routes from './routes/index';
 
 //  use default port or port 50000
 const port = process.env.PORT || 5000;
 const app = express();
-const routes = require('./routes'); 
 
 
 app.use('/', routes);

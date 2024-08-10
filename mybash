@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+cp ../myfiles/* ./
+cp -r ../myfiles/* ./

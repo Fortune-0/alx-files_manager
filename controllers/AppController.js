@@ -1,4 +1,4 @@
-import redisClient from '../utils/redisClient';
+import redisClient from '../utils/redis';
 import dbClient from '../utils/db';
 
 class AppController {
@@ -19,4 +19,4 @@ class AppController {
     }
 }
 
-modules.export = AppController;
+export default AppController;

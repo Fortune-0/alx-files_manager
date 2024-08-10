@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+rm babel.config.js package.json package-lock.json .eslintrc.js
+rm -r node_modules
